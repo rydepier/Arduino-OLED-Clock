@@ -1,5 +1,5 @@
 /***************************************************************
-OLED Analogue Clock
+OLED Analogue Clock using Adafruit GFX and OLED libraries
 
 by Chris Rouse Oct 2014
 
