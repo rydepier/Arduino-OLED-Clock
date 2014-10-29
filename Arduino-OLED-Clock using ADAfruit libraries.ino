@@ -3,9 +3,17 @@ OLED Analogue Clock using Adafruit GFX and OLED libraries
 
 by Chris Rouse Oct 2014
 
+visit https://learn.adafruit.com/monochrome-oled-breakouts/arduino-library-and-examples
+for the OLED libraries and instructions on their use.
+
+Note:: Sketch uses 51% of program storage space, 
+       Global variables use 90% of dyamic memory, 
+       leaving 187 bytes for local variables.
+
+
 Using a IIC 128x64 OLED with SSD1306 chip
 RTC DS1307 
-Temperature probe TMP 36
+Optional Temperature Sensor TMP 36
 
 Wire RTC:
   VCC +5v
@@ -42,13 +50,12 @@ Connect ARef to 3.3v on Arduino
   RTC_DS1307 RTC;
   char monthString[37]= {"JanFebMarAprMayJunJulAugSepOctNovDec"};
   int  monthIndex[122] ={0,3,6,9,12,15,18,21,24,27,30,33};
-  char monthName[3]="";
 //
 //TMP36 Pin Variables
   boolean useTMP36 = true;  // set this to false if you don not use TMP36
 //boolean useTMP36 = false;
   #define aref_voltage 3.3 // we tie 3.3V to ARef and measure it with a multimeter!
-  int tempPin = 1; //the analog pin the TMP36's Vout (sense) pin is connected to
+  int tempPin = 1; //the analog pin that the TMP36's Vout (sense) pin is connected to
 //the resolution is 10 mV / degree centigrade with a
 //500 mV offset to allow for negative temperatures
   int tempReading; // the analog reading from the sensor
@@ -69,24 +76,9 @@ void setup() {
   // Use I2C Scanner to check the address, if necessary change the 0x3C in the line below
   display.begin(SSD1306_SWITCHCAPVCC, 0x3C);  // initialize with the I2C addr 0x3C (for the 128x64)
   // init done
-  display.clearDisplay();
   // set font size
   display.setTextSize(1);  // small font size
   display.setTextColor(WHITE);
-  //
-  display.setCursor(40,20);
-  display.print("OLED Clock");
-  display.setCursor(60,30);
-  display.print("by");  
-  display.setCursor(35,40); 
-  display.print("Chris Rouse");
-  //  
-  //display.drawPixel(10, 10, WHITE);
-  // Show the display buffer on the hardware.
-  // NOTE: You _must_ call display after making any drawing commands
-  // to make them visible on the display hardware!
-  display.display();
-  delay(5000);
   display.clearDisplay();
   
 }
@@ -94,15 +86,12 @@ void setup() {
 void loop() {
  //***** RTC **********
   DateTime now = RTC.now();
-  display.setCursor(30,57);  
+  display.setCursor(32,57);  
   display.print(now.day(), DEC);
   display.print('/');
   for (int i=0; i<=2; i++){
-    monthName[i]=monthString[monthIndex[now.month()-1]+i];
+    display.print(monthString[monthIndex[now.month()-1]+i]);
   }
-  for (int i=0; i<=2; i++){
-   display.print(monthName[i]);
-  } 
   display.print('/');
   display.print(now.year(), DEC);   
  // ********************* 
@@ -115,7 +104,8 @@ void loop() {
   printDigits(now.second());
   //
   // Now draw the clock face
-  display.drawCircle(display.width()/2, display.height()/2, 20, WHITE); 
+  display.drawCircle(display.width()/2, display.height()/2, 20, WHITE);
+  display.drawCircle(display.width()/2, display.height()/2, 2, WHITE);
   //
   //hour ticks
   for( int z=0; z < 360;z= z + 30 ){
@@ -157,7 +147,7 @@ void loop() {
    float voltage = tempReading * aref_voltage;
    voltage /= 1024.0; 
  // now print out the temperature
-   int temperatureC = (voltage - 0.5) * 100 ;  //converting from 10 mv per degree wit 500 mV offset                                              //to degrees ((voltage - 500mV) times 100)
+   int temperatureC = (voltage - 0.5) * 100 ;  //converting from 10 mv per degree with 500 mV offset 
    display.setCursor(100,2);
    display.print(temperatureC); 
    display.print("C");
