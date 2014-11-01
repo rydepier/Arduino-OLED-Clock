@@ -1,3 +1,4 @@
+
 /******************************************************************************
 OLEd Analog Clock using U8GLIB Library
 
@@ -65,8 +66,8 @@ Connect ARef to 3.3v on Arduino
 
 void draw(void) {
   // graphic commands to redraw the complete screen should be placed here  
-  //u8g.setFont(u8g_font_5x8);
-  u8g.setFont(u8g_font_6x10); 
+  u8g.setFont(u8g_font_profont15);
+  //u8g.setFont(u8g_font_6x10); 
   //
   //***** RTC **********
   DateTime now = RTC.now();
