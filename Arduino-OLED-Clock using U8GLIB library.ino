@@ -1,4 +1,5 @@
 
+
 /******************************************************************************
 OLEd Analog Clock using U8GLIB Library
 
@@ -7,9 +8,12 @@ full instructions for use.
 
 by Chris Rouse Oct 2014
 
-Note:: Sketch uses 53% of program storage space, 
+This version uses a smoother font (profont15) and allows the centre of the clock
+to be positioned on the screen by altering the variables clockCentreX and clockCentreY
+
+Note:: Sketch uses 58% of program storage space, 
        Global variables use 48% of dyamic memory, 
-       leaving 1,061 bytes for local variables.
+       leaving 1,057 bytes for local variables.
 
 Using a IIC 128x64 OLED with SSD1306 chip
 RTC DS1307 
@@ -51,6 +55,8 @@ Connect ARef to 3.3v on Arduino
   String thisMonth = "";
   String thisTime = "";
   String thisDay="";
+  int clockCentreX = 64; // used to fix the centre the analog clock
+  int clockCentreY = 32; // used to fix the centre the analog clock
   
 //
 //TMP36 Pin Variables
@@ -94,40 +100,40 @@ void draw(void) {
   // ********************* 
   //
   // Now draw the clock face
-  u8g.drawCircle(64, 32, 20);
-  u8g.drawCircle(64, 32, 2);
+  u8g.drawCircle(clockCentreX, clockCentreY, 20); // main outer circle
+  u8g.drawCircle(clockCentreX, clockCentreY, 2);  // small inner circle
   //
   //hour ticks
   for( int z=0; z < 360;z= z + 30 ){
   //Begin at 0° and stop at 360°
     float angle = z ;
     angle=(angle/57.29577951) ; //Convert degrees to radians
-    int x2=(64+(sin(angle)*20));
-    int y2=(32-(cos(angle)*20));
-    int x3=(64+(sin(angle)*(20-5)));
-    int y3=(32-(cos(angle)*(20-5)));
+    int x2=(clockCentreX+(sin(angle)*20));
+    int y2=(clockCentreY-(cos(angle)*20));
+    int x3=(clockCentreX+(sin(angle)*(20-5)));
+    int y3=(clockCentreY-(cos(angle)*(20-5)));
     u8g.drawLine(x2,y2,x3,y3);
   }
   // display second hand
   float angle = now.second()*6 ;
   angle=(angle/57.29577951) ; //Convert degrees to radians  
-  int x3=(64+(sin(angle)*(20)));
-  int y3=(32-(cos(angle)*(20)));
-  u8g.drawLine(64,32,x3,y3);
+  int x3=(clockCentreX+(sin(angle)*(20)));
+  int y3=(clockCentreY-(cos(angle)*(20)));
+  u8g.drawLine(clockCentreX,clockCentreY,x3,y3);
   //
   // display minute hand
   angle = now.minute() * 6 ;
   angle=(angle/57.29577951) ; //Convert degrees to radians  
-  x3=(64+(sin(angle)*(20-3)));
-  y3=(32-(cos(angle)*(20-3)));
-  u8g.drawLine(64,32,x3,y3);
+  x3=(clockCentreX+(sin(angle)*(20-3)));
+  y3=(clockCentreY-(cos(angle)*(20-3)));
+  u8g.drawLine(clockCentreX,clockCentreY,x3,y3);
   //
   // display hour hand
   angle = now.hour() * 30 + int((now.minute() / 12) * 6 )   ;
   angle=(angle/57.29577951) ; //Convert degrees to radians  
-  x3=(64+(sin(angle)*(20-11)));
-  y3=(32-(cos(angle)*(20-11)));
-  u8g.drawLine(64,32,x3,y3);
+  x3=(clockCentreX+(sin(angle)*(20-11)));
+  y3=(clockCentreY-(cos(angle)*(20-11)));
+  u8g.drawLine(clockCentreX,clockCentreY,x3,y3);
  //
  // now add temperature if needed
  if (useTMP36==true) {
@@ -139,8 +145,12 @@ void draw(void) {
  // now print out the temperature
    int temperatureC = (voltage - 0.5) * 100 ;  //converting from 10 mv per degree wit 500 mV offset
    String thisTemp1 = String(temperatureC) + "C";
+   // printing output as follows used less program storage space
    const char* thisTemp = (const char*) thisTemp1.c_str();
    u8g.drawStr(100,10,thisTemp); 
+   // the print command could be used, but uses more memory
+   //u8g.setPrintPos(100,10);
+   //u8g.print(thisTemp1);
  }
 //
 //
@@ -156,20 +166,6 @@ void setup(void) {
     Serial.println("RTC is NOT running!");
     // following line sets the RTC to the date & time this sketch was compiled
     RTC.adjust(DateTime(__DATE__, __TIME__));
-  }
-
-  // assign default color value
-  if ( u8g.getMode() == U8G_MODE_R3G3B2 ) {
-    u8g.setColorIndex(255);     // white
-  }
-  else if ( u8g.getMode() == U8G_MODE_GRAY2BIT ) {
-    u8g.setColorIndex(3);         // max intensity
-  }
-  else if ( u8g.getMode() == U8G_MODE_BW ) {
-    u8g.setColorIndex(1);         // pixel on
-  }
-  else if ( u8g.getMode() == U8G_MODE_HICOLOR ) {
-    u8g.setHiColorByRGB(255,255,255);
   }
 
 }
